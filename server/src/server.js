@@ -11,7 +11,7 @@ async function startServer() {
         "MONGODB_URI is missing. Check your .env file."
       );
     }
-
+// test
     await connectDB();
 
     app.listen(PORT, () => {

@@ -1,12 +1,21 @@
 import express from "express";
 import cors from "cors";
 import spotRoutes from "./routes/spotRoutes.js";
+import itineraryRoutes from "./routes/itineraryRoutes.js";
 
 const app = express();
 
-app.use(cors({
-  origin: process.env.CLIENT_ORIGIN || "http://localhost:5173"
-}));
+// bag-o nga gi-add
+app.use((req, res, next) => {
+  console.log(`[REQUEST] ${req.method} ${req.originalUrl}`);
+  next();
+});
+
+app.use(
+  cors({
+    origin: process.env.CLIENT_ORIGIN || "http://localhost:5173",
+  }),
+);
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
 
@@ -16,8 +25,8 @@ app.get("/", (_req, res) => {
     endpoints: {
       health: "/api/health",
       touristSpots: "/api/spots",
-      touristSpotById: "/api/spots/:id"
-    }
+      touristSpotById: "/api/spots/:id",
+    },
   });
 });
 
@@ -25,7 +34,10 @@ app.get("/api/health", (_req, res) => {
   res.status(200).json({ status: "ok", service: "maasin-tour-guide-api" });
 });
 
+// temporary replacement app.use("/api/spots", spotRoutes);
+
 app.use("/api/spots", spotRoutes);
+app.use("/api/itineraries", itineraryRoutes);
 
 // JSON response for unknown routes
 app.use((_req, res) => {
@@ -36,7 +48,7 @@ app.use((_req, res) => {
 app.use((err, _req, res, _next) => {
   console.error(err);
   res.status(err.status || 500).json({
-    message: err.status ? err.message : "Internal server error."
+    message: err.status ? err.message : "Internal server error.",
   });
 });
 
