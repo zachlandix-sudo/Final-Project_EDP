@@ -182,3 +182,348 @@
     border-right-color: var(--border);
   }
 }
+
+
+/* ========================================
+   AI ITINERARY — COASTAL BLUE & WHITE
+======================================== */
+
+.itinerary-section {
+  padding-top: 80px;
+  padding-bottom: 80px;
+  scroll-margin-top: 35px;
+}
+
+.itinerary-section .section-heading {
+  margin-bottom: 30px;
+}
+
+.itinerary-section .eyebrow {
+  color: #167dad;
+  letter-spacing: 0.13em;
+}
+
+.itinerary-section .section-subtitle {
+  color: #637d8b;
+  line-height: 1.7;
+}
+
+.itinerary-form,
+.itinerary-result {
+  margin-top: 24px;
+  padding: 32px;
+  background: #ffffff;
+  border: 1px solid #dcebf2;
+  border-radius: 22px;
+  box-shadow: 0 12px 35px rgba(31, 104, 139, 0.07);
+}
+
+.itinerary-fields {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+
+.itinerary-fields > label {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #193b50;
+  font-size: 0.94rem;
+  font-weight: 650;
+}
+
+.itinerary-fields input,
+.itinerary-fields select {
+  width: 100%;
+  min-width: 0;
+  padding: 14px 15px;
+  color: #193b50;
+  background: #f7fbfd;
+  border: 1px solid #d3e4ed;
+  border-radius: 12px;
+  font: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.itinerary-fields input:focus,
+.itinerary-fields select:focus {
+  outline: none;
+  border-color: #167dad;
+  box-shadow: 0 0 0 4px rgba(22, 125, 173, 0.12);
+}
+
+.interest-picker {
+  margin: 28px 0;
+  padding: 0;
+  border: 0;
+}
+
+.interest-picker legend {
+  margin-bottom: 14px;
+  color: #193b50;
+  font-weight: 700;
+}
+
+.interest-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.interest-option {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  padding: 11px 15px;
+  color: #31586b;
+  background: #f0f8fc;
+  border: 1px solid #d6eaf3;
+  border-radius: 999px;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.interest-option:has(input:checked) {
+  color: #075985;
+  background: #dff3fc;
+  border-color: #72c3e3;
+}
+
+.interest-option input {
+  accent-color: #167dad;
+}
+
+.itinerary-submit {
+  min-height: 50px;
+  padding: 14px 24px;
+  color: #ffffff;
+  background: #167dad;
+  border: 0;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.itinerary-submit:hover:not(:disabled) {
+  background: #10658e;
+  transform: translateY(-1px);
+}
+
+.itinerary-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.itinerary-error {
+  margin: 14px 0;
+  padding: 13px 15px;
+  color: #a12626;
+  background: #fff1f1;
+  border: 1px solid #f2cece;
+  border-radius: 10px;
+}
+
+.itinerary-result {
+  color: #193b50;
+  scroll-margin-top: 24px;
+}
+
+.itinerary-result-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #e1edf3;
+}
+
+.itinerary-result-header h3 {
+  margin: 8px 0 12px;
+  color: #123e56;
+  font-size: clamp(1.5rem, 3vw, 2.1rem);
+  line-height: 1.25;
+}
+
+.itinerary-result-header p {
+  color: #637d8b;
+  line-height: 1.7;
+}
+
+.itinerary-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 22px 0 30px;
+}
+
+.itinerary-meta span {
+  padding: 8px 12px;
+  color: #23617c;
+  background: #edf7fb;
+  border: 1px solid #dceef5;
+  border-radius: 9px;
+  font-size: 0.85rem;
+  overflow-wrap: anywhere;
+}
+
+.itinerary-result h4 {
+  margin: 30px 0 16px;
+  color: #123e56;
+  font-size: 1.15rem;
+}
+
+.itinerary-stops {
+  display: grid;
+}
+
+.itinerary-stop {
+  display: grid;
+  grid-template-columns: 115px minmax(0, 1fr);
+  gap: 22px;
+  padding: 22px 0;
+  border-bottom: 1px solid #e2edf2;
+}
+
+.stop-time {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: #167dad;
+}
+
+.stop-time strong {
+  font-size: 1.02rem;
+}
+
+.stop-time span {
+  color: #78909c;
+  font-size: 0.9rem;
+}
+
+.stop-details h5 {
+  margin: 0 0 9px;
+  color: #193b50;
+  font-size: 1.08rem;
+}
+
+.stop-details p {
+  margin: 0 0 10px;
+  color: #526f7e;
+  line-height: 1.7;
+}
+
+.stop-details small {
+  color: #718994;
+  line-height: 1.7;
+}
+
+.itinerary-budget {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.itinerary-budget > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 19px;
+  color: #456473;
+  background: #f3f9fc;
+  border: 1px solid #e0edf3;
+  border-radius: 14px;
+}
+
+.itinerary-budget strong {
+  color: #193b50;
+  text-align: right;
+}
+
+.itinerary-budget .budget-total {
+  background: #e1f3fb;
+  border-color: #b7e0f1;
+}
+
+.itinerary-budget .budget-total strong {
+  color: #075985;
+  font-size: 1.12rem;
+}
+
+.itinerary-tips {
+  padding-left: 23px;
+  color: #526f7e;
+  line-height: 1.9;
+}
+
+.itinerary-disclaimer {
+  margin-top: 25px;
+  padding: 14px 16px;
+  color: #627c89;
+  background: #f5f9fb;
+  border-left: 3px solid #72c3e3;
+  border-radius: 5px 10px 10px 5px;
+  font-size: 0.88rem;
+  line-height: 1.7;
+}
+
+@media (max-width: 700px) {
+  .itinerary-section {
+    padding-top: 48px;
+    padding-bottom: 48px;
+  }
+
+  .itinerary-form,
+  .itinerary-result {
+    padding: 20px;
+    border-radius: 16px;
+  }
+
+  .itinerary-fields,
+  .itinerary-budget {
+    grid-template-columns: 1fr;
+  }
+
+  .itinerary-result-header {
+    flex-direction: column;
+  }
+
+  .itinerary-stop {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+
+  #itinerary-result,
+  #itinerary-result * {
+    visibility: visible;
+  }
+
+  #itinerary-result {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    box-shadow: none;
+    color: #000000;
+  }
+
+  #itinerary-result .no-print {
+    display: none !important;
+  }
+
+  .itinerary-stop,
+  .itinerary-budget > div {
+    break-inside: avoid;
+  }
+}

@@ -8,12 +8,14 @@ const validateSpotPayload = (body, { partial = false } = {}) => {
   if (!body || typeof body !== "object" || Array.isArray(body)) {
     return ["Request body must be a JSON object"];
   }
-
   const textFields = [
     "name",
     "slug",
     "description",
     "shortDescription",
+    "origin",
+    "history",
+    "culturalSignificance",
     "category",
     "address",
     "openingHours",
@@ -22,6 +24,44 @@ const validateSpotPayload = (body, { partial = false } = {}) => {
     "imageUrl",
     "status",
   ];
+  if (
+    body.historySources !== undefined &&
+    (
+      !Array.isArray(body.historySources) ||
+      body.historySources.length > 20 ||
+      !body.historySources.every(
+        (source) =>
+          source &&
+          typeof source === "object" &&
+          !Array.isArray(source) &&
+          (source.title === undefined ||
+            typeof source.title === "string") &&
+          (source.url === undefined ||
+            typeof source.url === "string") &&
+          (source.publisher === undefined ||
+            typeof source.publisher === "string") &&
+          (source.accessedAt === undefined ||
+            source.accessedAt === null ||
+            !Number.isNaN(Date.parse(source.accessedAt)))
+      )
+    )
+  ) {
+    errors.push(
+      "historySources must be an array of valid source objects"
+    );
+  }
+
+  for (const field of [
+    "summaryGeneratedByAI",
+    "summaryReviewed",
+  ]) {
+    if (
+      body[field] !== undefined &&
+      typeof body[field] !== "boolean"
+    ) {
+      errors.push(`${field} must be a boolean`);
+    }
+  }
 
   for (const field of textFields) {
     if (body[field] !== undefined && typeof body[field] !== "string") {
@@ -237,6 +277,18 @@ export async function createSpot(req, res, next) {
       imageUrl,
       gallery,
       status,
+      shortDescription,
+      origin,
+      history,
+      culturalSignificance,
+      historySources,
+      summaryGeneratedByAI,
+      summaryReviewed,
+      bestTimeToVisit,
+      highlights,
+      facilities,
+      travelTips,
+      nearbyAttractions,
     } = req.body;
 
     if (
@@ -264,6 +316,18 @@ export async function createSpot(req, res, next) {
       imageUrl,
       gallery,
       status,
+      shortDescription,
+      origin,
+      history,
+      culturalSignificance,
+      historySources,
+      summaryGeneratedByAI,
+      summaryReviewed,
+      bestTimeToVisit,
+      highlights,
+      facilities,
+      travelTips,
+      nearbyAttractions,
     });
 
     return res.status(201).json({
@@ -328,6 +392,12 @@ export async function updateSpot(req, res, next) {
       "travelTips",
       "nearbyAttractions",
       "status",
+      "origin",
+      "history",
+      "culturalSignificance",
+      "historySources",
+      "summaryGeneratedByAI",
+      "summaryReviewed",
     ];
 
     const updates = {};

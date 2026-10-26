@@ -2,8 +2,13 @@ import express from "express";
 import cors from "cors";
 import spotRoutes from "./routes/spotRoutes.js";
 import itineraryRoutes from "./routes/itineraryRoutes.js";
+import path from "node:path";
+import { fileURLToPath } from "node:url";
 
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const uploadsDirectory = path.resolve(__dirname, "../uploads");
 
 // bag-o nga gi-add
 app.use((req, res, next) => {
@@ -18,6 +23,7 @@ app.use(
 );
 app.use(express.json({ limit: "1mb" }));
 app.use(express.urlencoded({ extended: true }));
+app.use("/uploads", express.static(uploadsDirectory));
 
 app.get("/", (_req, res) => {
   res.json({
