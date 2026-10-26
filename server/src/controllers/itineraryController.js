@@ -5,11 +5,18 @@ import Itinerary from "../models/Itinerary.js";
 import TouristSpot from "../models/TouristSpot.js";
 
 const allowedPaces = ["relaxed", "moderate", "packed"];
+function getGroqClient() {
+  const apiKey = process.env.GROQ_API_KEY?.trim();
 
-const ai = new Groq({
-  apiKey: process.env.GROQ_API_KEY,
-  timeout: 60000,
-});
+  if (!apiKey) {
+    throw new Error("GROQ_API_KEY is missing or empty.");
+  }
+
+  return new Groq({
+    apiKey,
+    timeout: 60000,
+  });
+}
 
 function validatePreferences(body = {}) {
   const travelers = Number(body.travelers);
@@ -110,12 +117,14 @@ function calculateBudget(
     currency: "PHP",
   };
 }
-async function generateWithRetry(
+  async function generateWithRetry(
   model,
   contents,
   config,
   maxRetries = 1,
 ) {
+  const ai = getGroqClient();
+
   for (let attempt = 0; ; attempt++) {
     try {
       return await ai.chat.completions.create({
@@ -152,32 +161,6 @@ async function generateWithRetry(
     }
   }
 }
-
-
-export async function generateItinerary(req, res) {
-  try {
-    if (!process.env.GROQ_API_KEY) {
-      return res.status(503).json({
-        message: "Groq API key is not configured on the server.",
-      });
-    }
-
-    const preferences = validatePreferences(req.body);
-
-    const touristSpots = await TouristSpot.find({
-      status: "published",
-    })
-      .select(
-        "name slug description shortDescription category address entranceFee estimatedTravelCost openingHours bestTimeToVisit travelTips",
-      )
-      .lean();
-
-    if (!touristSpots.length) {
-      return res.status(400).json({
-        message:
-          "No published tourist spots are available for itinerary generation.",
-      });
-    }
 
     const model =
       process.env.GROQ_MODEL || "openai/gpt-oss-20b";
