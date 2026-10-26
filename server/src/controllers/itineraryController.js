@@ -5,6 +5,7 @@ import Itinerary from "../models/Itinerary.js";
 import TouristSpot from "../models/TouristSpot.js";
 
 const allowedPaces = ["relaxed", "moderate", "packed"];
+
 function getGroqClient() {
   const apiKey = process.env.GROQ_API_KEY?.trim();
 
@@ -46,12 +47,13 @@ function validatePreferences(body = {}) {
 
   const interests = Array.isArray(body.interests)
     ? body.interests
-      .filter(
-        (interest) =>
-          typeof interest === "string" &&
-          interest.trim().length > 0,
-      )
-      .slice(0, 10)
+        .filter(
+          (interest) =>
+            typeof interest === "string" &&
+            interest.trim().length > 0,
+        )
+        .slice(0, 10)
+        .map((interest) => interest.trim())
     : [];
 
   return {
@@ -113,11 +115,14 @@ function calculateBudget(
     remainingGroupBudget:
       startingGroupBudget - totalGroupCost,
     remainingPerPersonBudget:
-      startingBudgetPerPerson - totalPerPerson,
+      Math.round(
+        (startingBudgetPerPerson - totalPerPerson) * 100,
+      ) / 100,
     currency: "PHP",
   };
 }
-  async function generateWithRetry(
+
+async function generateWithRetry(
   model,
   contents,
   config,
@@ -161,6 +166,31 @@ function calculateBudget(
     }
   }
 }
+
+export async function generateItinerary(req, res) {
+  try {
+    if (!process.env.GROQ_API_KEY?.trim()) {
+      return res.status(503).json({
+        message: "Groq API key is not configured on the server.",
+      });
+    }
+
+    const preferences = validatePreferences(req.body);
+
+    const touristSpots = await TouristSpot.find({
+      status: "published",
+    })
+      .select(
+        "name slug description shortDescription category address entranceFee estimatedTravelCost openingHours bestTimeToVisit travelTips",
+      )
+      .lean();
+
+    if (!touristSpots.length) {
+      return res.status(400).json({
+        message:
+          "No published tourist spots are available for itinerary generation.",
+      });
+    }
 
     const model =
       process.env.GROQ_MODEL || "openai/gpt-oss-20b";
@@ -217,20 +247,27 @@ Rules:
       },
     );
 
-    // const generatedText =
-    //   response.choices?.[0]?.message?.content || "";
-
-    // const generated = parseJsonResponse(generatedText);
-
     const generatedText =
       response.choices?.[0]?.message?.content;
 
-    console.log("Groq response choices:", response.choices?.length);
-    console.log("Groq response finish reason:", response.choices?.[0]?.finish_reason);
+    console.log(
+      "Groq response choices:",
+      response.choices?.length,
+    );
+    console.log(
+      "Groq response finish reason:",
+      response.choices?.[0]?.finish_reason,
+    );
     console.log("Groq content type:", typeof generatedText);
-    console.log("Groq content length:", generatedText?.length ?? 0);
+    console.log(
+      "Groq content length:",
+      generatedText?.length ?? 0,
+    );
 
-    if (!generatedText || !generatedText.trim()) {
+    if (
+      typeof generatedText !== "string" ||
+      !generatedText.trim()
+    ) {
       throw new Error("Groq returned empty itinerary content.");
     }
 
@@ -239,10 +276,11 @@ Rules:
     if (
       !generated ||
       typeof generated.title !== "string" ||
+      !generated.title.trim() ||
       !Array.isArray(generated.stops)
     ) {
       throw new Error(
-        "Gemini returned an invalid itinerary structure.",
+        "Groq returned an invalid itinerary structure.",
       );
     }
 
@@ -255,7 +293,7 @@ Rules:
 
       if (!spot) {
         throw new Error(
-          "Gemini returned a destination that is not in the database.",
+          "Groq returned a destination that is not in the database.",
         );
       }
 
@@ -311,13 +349,11 @@ Rules:
       pace: preferences.pace,
       stops,
       budget,
-      summary: String(
-        generated.summary || "",
-      ).slice(0, 2000),
+      summary: String(generated.summary || "").slice(0, 2000),
       travelTips: Array.isArray(generated.travelTips)
         ? generated.travelTips
-          .filter((tip) => typeof tip === "string")
-          .slice(0, 20)
+            .filter((tip) => typeof tip === "string")
+            .slice(0, 20)
         : [],
       status: "generated",
     });
@@ -347,12 +383,18 @@ Rules:
       return res.status(400).json({ message });
     }
 
-    if (error instanceof SyntaxError) {
-      return res.status(502).json({
-        message:
-          "Groq returned invalid JSON. Please try again.",
+    if (message.includes("GROQ_API_KEY is missing")) {
+      return res.status(503).json({
+        message: "Groq API key is not configured on the server.",
       });
     }
+
+    if (error instanceof SyntaxError) {
+      return res.status(502).json({
+        message: "Groq returned invalid JSON. Please try again.",
+      });
+    }
+
     if (
       errorName === "TimeoutError" ||
       errorName === "AbortError" ||
@@ -393,9 +435,7 @@ export async function getItineraryById(req, res) {
       });
     }
 
-    const itinerary = await Itinerary.findById(
-      req.params.id,
-    )
+    const itinerary = await Itinerary.findById(req.params.id)
       .populate(
         "stops.touristSpot",
         "name slug category address imageUrl",
